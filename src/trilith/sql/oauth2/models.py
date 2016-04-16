@@ -76,8 +76,8 @@ class Grant(Base):
     @property
     def scopes(self):
         if self.allowed_scopes:
-            return self.allowed_scopes.split()
-        return []
+            return set(self.allowed_scopes.split())
+        return set()
 
 
 class Token(Base):
@@ -104,5 +104,5 @@ class Token(Base):
     @property
     def scopes(self):
         if self.allowed_scopes:
-            return self.allowed_scopes.split()
-        return []
+            return set(self.allowed_scopes.split())
+        return set()
