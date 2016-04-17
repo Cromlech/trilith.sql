@@ -4,14 +4,18 @@ from sqlalchemy.orm import relationship
 from sqlalchemy import Column, DateTime, Text, ForeignKey, Integer, String, Enum
 from sqlalchemy.ext.declarative import declarative_base
 
+from .interfaces import IUser, IGrant, IToken, IClient
+
+
 Base = declarative_base()
 
 
 class User(Base):
     """User
     """
+    __schema__ = [IUser]
     __tablename__ = 'users'
-    
+
     id = Column(String(128), primary_key=True)
     common_name = Column(String(128))
     function = Column(String(128))
@@ -20,8 +24,9 @@ class User(Base):
 class Client(Base):
     """Client : may be linked to a User or stand alone.
     """
+    __schema__ = [IClient]
     __tablename__ = 'clients'
-    
+
     id = Column(String(40), primary_key=True)
     name = Column(String(40), unique=True)
     type = Enum('public', 'confidential')
@@ -39,6 +44,10 @@ class Client(Base):
             return self.redirections.split()
         return []
 
+    @redirect_uris.setter
+    def redirect_uris(self, value):
+        self.redirections = ' '.join(value)
+        
     @property
     def default_redirect_uri(self):
         return self.redirect_uris[0]
@@ -49,10 +58,15 @@ class Client(Base):
             return self.default_target_scopes.split()
         return []
 
+    @default_scopes.setter
+    def default_scopes(self, value):
+        self.default_target_scopes = ' '.join(value)
 
-class Grant(Base):
-    __tablename__ = 'grants'
     
+class Grant(Base):
+    __schema__ = [IGrant]
+    __tablename__ = 'grants'
+
     # Identity
     id = Column(Integer, primary_key=True)
 
@@ -81,8 +95,9 @@ class Grant(Base):
 
 
 class Token(Base):
+    __schema__ = [IToken]
     __tablename__ = 'tokens'
-    
+
     # Identity
     id = Column(Integer, primary_key=True)
     type = Enum('Bearer', 'MAC')
