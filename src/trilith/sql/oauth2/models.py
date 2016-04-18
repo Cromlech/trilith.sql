@@ -3,13 +3,14 @@
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, DateTime, Text, ForeignKey, Integer, String, Enum
 from sqlalchemy.ext.declarative import declarative_base
-
+from zope.interface import implementer
 from .interfaces import IUser, IGrant, IToken, IClient
 
 
 Base = declarative_base()
 
 
+@implementer(IUser)
 class User(Base):
     """User
     """
@@ -21,6 +22,7 @@ class User(Base):
     function = Column(String(128))
 
 
+@implementer(IClient)
 class Client(Base):
     """Client : may be linked to a User or stand alone.
     """
@@ -62,7 +64,8 @@ class Client(Base):
     def default_scopes(self, value):
         self.default_target_scopes = ' '.join(value)
 
-    
+
+@implementer(IGrant)
 class Grant(Base):
     __schema__ = [IGrant]
     __tablename__ = 'grants'
@@ -94,6 +97,7 @@ class Grant(Base):
         return set()
 
 
+@implementer(IToken)
 class Token(Base):
     __schema__ = [IToken]
     __tablename__ = 'tokens'
