@@ -19,19 +19,18 @@ class Storage(object):
     def find(self, **params):
         try:
             with SQLAlchemySession(self.engine) as s:
-                q = session.query(self.__factory__)
+                q = s.query(self.__factory__)
                 for key, value in params.items():
-                    q = q.filter(getattr(myClass, attr) == value)
-                    found = q.one()
+                    q = q.filter(getattr(self.__factory__, key) == value)
+                    return q.one()
         except NoResultFound:
-            found = None
+            return None
         except MultipleResultsFound:
             # Might need logging
-            found = None
-        finally:
-            return found
+            return None
 
     def add(self, **data):
+        print data
         item = self.__factory__(**data)
         with transaction.manager as tm:
             with SQLAlchemySession(self.engine, transaction_manager=tm) as s:
@@ -59,6 +58,11 @@ class Storage(object):
             q = s.query(self.__factory__.id).filter(self.__factory__.id == key)
             return bool(s.query(q.exists()))
 
+    def delete(self, item):
+        with transaction.manager as tm:
+            with SQLAlchemySession(self.engine, transaction_manager=tm) as s:
+                s.delete(item)
+
     def get(self, key, default=None):
         try:
             return self[key]
@@ -84,5 +88,3 @@ class Grants(Storage):
 @implementer(ITokens)
 class Tokens(Storage):
     __factory__ = models.Token
-
-    add = NotImplementedError("You can't manually add a token")

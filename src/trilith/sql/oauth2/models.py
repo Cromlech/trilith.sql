@@ -21,6 +21,10 @@ class User(Base):
     common_name = Column(String(128))
     function = Column(String(128))
 
+    @property
+    def username(self):
+        return self.id
+
 
 @implementer(IClient)
 class Client(Base):
@@ -39,6 +43,18 @@ class Client(Base):
 
     # Relationships
     user = relationship('User')
+
+    @property
+    def client_id(self):
+        return self.id
+
+    @property
+    def client_secret(self):
+        return self.secret
+
+    @property
+    def client_type(self):
+        return self.type
 
     @property
     def redirect_uris(self):
@@ -104,7 +120,7 @@ class Token(Base):
 
     # Identity
     id = Column(Integer, primary_key=True)
-    type = Enum('Bearer', 'MAC')
+    token_type = Enum('Bearer', 'MAC')
     access_token = Column(String(255), unique=True)
     refresh_token = Column(String(255), unique=True)
 
@@ -121,7 +137,11 @@ class Token(Base):
     user = relationship('User')
 
     @property
-    def scopes(self):
+    def scope(self):
         if self.allowed_scopes:
             return set(self.allowed_scopes.split())
         return set()
+
+    @scope.setter
+    def scope(self, value):
+        self.allowed_scopes = value
