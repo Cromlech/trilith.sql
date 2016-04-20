@@ -17,13 +17,9 @@ class User(Base):
     __schema__ = [IUser]
     __tablename__ = 'users'
 
-    id = Column(String(128), primary_key=True)
+    username = Column(String(128), primary_key=True)
     common_name = Column(String(128))
     function = Column(String(128))
-
-    @property
-    def username(self):
-        return self.id
 
 
 @implementer(IClient)
@@ -37,7 +33,7 @@ class Client(Base):
     name = Column(String(40), unique=True)
     type = Enum('public', 'confidential')
     secret = Column(String(55))
-    user_id = Column(ForeignKey(User.id), nullable=True)
+    user_id = Column(ForeignKey(User.username), nullable=True)
     redirections = Column(Text)
     default_target_scopes = Column(Text)
 
@@ -92,7 +88,7 @@ class Grant(Base):
     # Affiliation
     client_id = Column(String(40), ForeignKey(Client.id))
     user_id = Column(
-        String(128), ForeignKey(User.id, ondelete='CASCADE'), nullable=True)
+        String(128), ForeignKey(User.username, ondelete='CASCADE'), nullable=True)
 
     # Destination
     redirect_uri = Column(String(255))
@@ -126,7 +122,7 @@ class Token(Base):
 
     # Affiliation
     client_id = Column(String(40), ForeignKey(Client.id))
-    user_id = Column(String(128), ForeignKey(User.id), nullable=True)
+    user_id = Column(String(128), ForeignKey(User.username), nullable=True)
 
     # Restrictions
     expires = Column(DateTime)
