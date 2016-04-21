@@ -2,11 +2,11 @@
 
 import transaction
 from cromlech.sqlalchemy import SQLAlchemySession
-from trilith.sql.oauth2 import models
-from trilith.oauth2.interfaces import IUsers, IGrants, ITokens, IClients
-from zope.interface import implementer
-from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.exc import MultipleResultsFound
+from sqlalchemy.orm.exc import NoResultFound
+from trilith.oauth2.interfaces import IUsers, IGrants, ITokens, IClients
+from trilith.sql.oauth2 import models
+from zope.interface import implementer
 
 
 class Storage(object):
@@ -30,7 +30,6 @@ class Storage(object):
             return None
 
     def add(self, **data):
-        print data
         item = self.__factory__(**data)
         with transaction.manager as tm:
             with SQLAlchemySession(self.engine, transaction_manager=tm) as s:

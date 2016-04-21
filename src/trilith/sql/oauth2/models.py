@@ -112,7 +112,11 @@ class Grant(Base):
             return set(self.allowed_scopes.split())
         return set()
 
+    @scopes.setter
+    def scopes(self, value):
+        self.allowed_scopes = ' '.join(value)
 
+    
 @implementer(IToken)
 class Token(Base):
     __schema__ = [IToken]
