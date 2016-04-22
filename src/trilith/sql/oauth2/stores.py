@@ -7,12 +7,14 @@ from sqlalchemy.orm.exc import NoResultFound
 from trilith.oauth2.interfaces import IUsers, IGrants, ITokens, IClients
 from trilith.sql.oauth2 import models
 from zope.interface import implementer
+from zope.location import ILocation, LocationProxy
 
 
+@implementer(ILocation)
 class Storage(object):
 
     __factory__ = None
-    
+
     def __init__(self, engine):
         self.engine = engine
 
@@ -39,7 +41,10 @@ class Storage(object):
     def __getitem__(self, key):
         try:
             with SQLAlchemySession(self.engine) as s:
-                return s.query(self.__factory__).get(key)
+                item = s.query(self.__factory__).get(key)
+                if item is not None:
+                    return LocationProxy(item, self, key)
+
         except sqlalchemy.orm.exc.NoResultFound:
             raise KeyError(key)
 
@@ -67,6 +72,14 @@ class Storage(object):
             return self[key]
         except KeyError:
             return default
+
+    def update(self, item, **values):
+        print values
+        with transaction.manager as tm:
+            with SQLAlchemySession(self.engine, transaction_manager=tm) as s:
+                for key, value in values.items():
+                    setattr(item, key, value)
+                    s.add(item)
 
 
 @implementer(IUsers)

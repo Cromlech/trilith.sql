@@ -88,7 +88,8 @@ class Grant(Base):
     # Affiliation
     client_id = Column(String(40), ForeignKey(Client.id))
     user_id = Column(
-        String(128), ForeignKey(User.username, ondelete='CASCADE'), nullable=True)
+        String(128), ForeignKey(User.username, ondelete='CASCADE'),
+        nullable=True)
 
     # Destination
     redirect_uri = Column(String(255))
