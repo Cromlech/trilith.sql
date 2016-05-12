@@ -44,8 +44,7 @@ class Storage(object):
                 item = s.query(self.__factory__).get(key)
                 if item is not None:
                     return LocationProxy(item, self, key)
-
-        except sqlalchemy.orm.exc.NoResultFound:
+        except NoResultFound:
             raise KeyError(key)
 
     def __iter__(self):
@@ -62,9 +61,10 @@ class Storage(object):
             q = s.query(self.__factory__.id).filter(self.__factory__.id == key)
             return bool(s.query(q.exists()))
 
-    def delete(self, item):
+    def delete(self, key):
         with transaction.manager as tm:
             with SQLAlchemySession(self.engine, transaction_manager=tm) as s:
+                item = s.query(self.__factory__).get(key)
                 s.delete(item)
 
     def get(self, key, default=None):
